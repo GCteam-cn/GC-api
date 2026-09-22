@@ -1,11 +1,9 @@
 const fetch = require('node-fetch');
 
-// 缓存（Serverless 环境下实例可能复用，缓存有时效性）
 let cache = { data: null, timestamp: 0 };
-const CACHE_TTL = 5 * 60 * 1000;
+const CACHE_TTL = 30 * 60 * 1000; // 30 分钟
 
 module.exports = async (req, res) => {
-  // 允许跨域
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -17,7 +15,7 @@ module.exports = async (req, res) => {
   const now = Date.now();
 
   if (cache.data && (now - cache.timestamp) < CACHE_TTL) {
-    return res.status(200).json(cache.data);
+    return res.status(200).json({ ...cache.data, cached: true });
   }
 
   try {
